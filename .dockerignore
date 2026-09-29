@@ -1,0 +1,10 @@
+*
+!trajectory.Dockerfile
+!pyproject.toml
+!README.md
+!big_finance_harness/
+!big_finance_harness/**
+!scripts/
+!scripts/run_eval_set.py
+!data/
+!data/big_finance_subset.jsonl

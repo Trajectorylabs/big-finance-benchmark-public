@@ -25,7 +25,7 @@ or email `alexwang@rogo.ai`.
 |---|---|
 | `big_finance_harness/` | Python package: ReAct agent, tools, judge, types |
 | `scripts/` | Orchestrator (eval + grade), analysis, plotting |
-| `tests/` | Test suite (51 tests, no network deps) |
+| `tests/` | Test suite (53 tests, no network deps) |
 | `data/` | Public 50-item subset (`big_finance_subset.jsonl`) + datasheet |
 | `grades/` | Public grading outputs from Gemini 3.1 Pro, Claude Opus 4.7, and GPT-5.5 |
 | `human_workpapers/` | Two illustrative workbooks from independent human validation |
@@ -104,6 +104,23 @@ See [`data/README.md`](data/README.md) for schema and provenance, and
 [`data/DATASHEET.md`](data/DATASHEET.md) for the full datasheet. The held-back
 remainder of the benchmark is available on request through the maintainer; place
 it at `data/big_finance_full.jsonl` to swap into the commands below.
+
+## Trajectory Platform ingestion
+
+`ingest_trajectory.py` packages the 50 public questions as evaluation-only tasks. Each task
+keeps one Trajectory session across the existing ReAct loop, runs the original rubric grader,
+records `reward_accuracy`, and completes the trajectory.
+
+Configure an agent plus the three runtime secrets referenced by the uploader, then run:
+
+```bash
+export TRAJECTORY_API_KEY="..."
+export TRAJECTORY_AGENT_ID="agt_<your-agent-id>"
+uv run ingest_trajectory.py
+```
+
+The uploader prints the benchmark ID after its runtime image is ready. The held-back 928-item
+dataset is not read, uploaded, or included in the image.
 
 ## Quickstart
 
