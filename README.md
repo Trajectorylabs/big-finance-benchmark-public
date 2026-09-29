@@ -25,7 +25,7 @@ or email `alexwang@rogo.ai`.
 |---|---|
 | `big_finance_harness/` | Python package: ReAct agent, tools, judge, types |
 | `scripts/` | Orchestrator (eval + grade), analysis, plotting |
-| `tests/` | Test suite (53 tests, no network deps) |
+| `tests/` | Test suite (51 tests, no network deps) |
 | `data/` | Public 50-item subset (`big_finance_subset.jsonl`) + datasheet |
 | `grades/` | Public grading outputs from Gemini 3.1 Pro, Claude Opus 4.7, and GPT-5.5 |
 | `human_workpapers/` | Two illustrative workbooks from independent human validation |
