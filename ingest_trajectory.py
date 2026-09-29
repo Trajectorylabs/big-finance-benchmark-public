@@ -1,5 +1,5 @@
 # /// script
-# dependencies = ["trajectory-sdk==0.7.1"]
+# dependencies = ["trajectory-sdk==0.7.21"]
 # ///
 import json
 import os

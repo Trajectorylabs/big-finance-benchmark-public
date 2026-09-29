@@ -56,7 +56,7 @@ dev = [
     "ruff==0.13.0",
 ]
 trajectory = [
-    "trajectory-sdk==0.7.1",
+    "trajectory-sdk==0.7.21",
 ]
 
 [tool.setuptools]
