@@ -331,6 +331,13 @@ async def _grade_one_model(
 @click.option("--sample-n", type=int, default=None, help="If set, sample this many items.")
 @click.option("--sample-seed", type=int, default=0, show_default=True)
 @click.option(
+    "--task-id",
+    type=str,
+    envvar="BFB_TASK_ID",
+    help="Run one exact dataset task by its stable ID.",
+)
+@click.option("--trajectory", "trajectory_mode", is_flag=True)
+@click.option(
     "--concurrency",
     type=int,
     default=3,
@@ -421,6 +428,8 @@ def main(
     kind: str,
     sample_n: int | None,
     sample_seed: int,
+    task_id: str | None,
+    trajectory_mode: bool,
     concurrency: int,
     max_steps: int,
     max_output_tokens: int,
@@ -447,10 +456,49 @@ def main(
 
     full_items = _load_dataset(dataset)
     dataset_sha = _sha256_file(dataset)
-    if sample_n is not None:
+    if task_id is not None:
+        items = [item for item in full_items if item.id == task_id]
+        if not items:
+            raise click.UsageError(f"task ID not found in dataset: {task_id}")
+    elif sample_n is not None:
         items = _sample_items(full_items, sample_n, sample_seed)
     else:
         items = full_items
+
+    if trajectory_mode:
+        if len(items) != 1 or task_id is None:
+            raise click.UsageError("--trajectory requires exactly one --task-id")
+
+        from big_finance_harness.models.trajectory import TrajectoryClient
+
+        item = items[0]
+        client = TrajectoryClient()
+        try:
+            run = asyncio.run(
+                run_question(
+                    question_id=item.id,
+                    question=item.query,
+                    reference_answer=item.reference_answer,
+                    client=client,
+                    tools=default_tools(),
+                    system_prompt=SYSTEM_PROMPT,
+                    max_steps=max_steps,
+                    max_output_tokens=max_output_tokens,
+                )
+            )
+            if run.error:
+                raise RuntimeError(f"agent run failed ({run.stop_reason}): {run.error}")
+            graded = asyncio.run(grade(run=run, item=item, judge_model_id=judges[0]))
+            reward = graded.rubric_points_earned / graded.rubric_points_possible
+            explanation = (
+                f"{graded.rubric_points_earned}/{graded.rubric_points_possible} rubric points"
+            )
+            client.log_reward(reward, explanation)
+        except Exception:
+            client.complete(termination_reason="ERROR")
+            raise
+        client.complete()
+        return
 
     started_at = datetime.now(timezone.utc).isoformat()
     started_mono = time.monotonic()

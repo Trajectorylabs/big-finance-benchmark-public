@@ -105,6 +105,23 @@ See [`data/README.md`](data/README.md) for schema and provenance, and
 remainder of the benchmark is available on request through the maintainer; place
 it at `data/big_finance_full.jsonl` to swap into the commands below.
 
+## Trajectory Platform ingestion
+
+`ingest_trajectory.py` packages the 50 public questions as evaluation-only tasks. Each task
+keeps one Trajectory session across the existing ReAct loop, runs the original rubric grader,
+records `reward_accuracy`, and completes the trajectory.
+
+Configure an agent plus the three runtime secrets referenced by the uploader, then run:
+
+```bash
+export TRAJECTORY_API_KEY="..."
+export TRAJECTORY_AGENT_ID="agt_<your-agent-id>"
+uv run ingest_trajectory.py
+```
+
+The uploader prints the benchmark ID after its runtime image is ready. The held-back 928-item
+dataset is not read, uploaded, or included in the image.
+
 ## Quickstart
 
 A small end-to-end run on five questions, one model, one judge:
